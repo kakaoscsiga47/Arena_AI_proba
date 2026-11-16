@@ -428,72 +428,215 @@ function applyHit(target, dmg, label, proj, isHeadshot) {
 
 // Rendering
 function drawBackground() {
-  // Sky gradient (dusk medieval sky)
+  const t = performance.now() * 0.001;
+
+  // Dramatic dusk sky gradient
   const sky = ctx.createLinearGradient(0, 0, 0, 380);
-  sky.addColorStop(0, '#1c2536');
-  sky.addColorStop(0.6, '#4a3531');
-  sky.addColorStop(1, '#8c5332');
+  sky.addColorStop(0, '#0f1624');
+  sky.addColorStop(0.45, '#2b2433');
+  sky.addColorStop(0.8, '#6e3b30');
+  sky.addColorStop(1, '#b86b35');
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, 380);
 
-  // Distant castle silhouette
-  ctx.fillStyle = '#241d21';
-  ctx.fillRect(120, 170, 720, 210);
-  // Battlements
-  for (let x = 120; x < 840; x += 36) {
-    ctx.fillRect(x, 152, 20, 20);
+  // Soft sunset glow
+  const sunGlow = ctx.createRadialGradient(W * 0.5, 340, 20, W * 0.5, 340, 320);
+  sunGlow.addColorStop(0, 'rgba(255, 175, 90, 0.35)');
+  sunGlow.addColorStop(1, 'rgba(255, 175, 90, 0)');
+  ctx.fillStyle = sunGlow;
+  ctx.fillRect(0, 0, W, 380);
+
+  // Distant mountain ridge
+  ctx.fillStyle = '#1d1924';
+  ctx.beginPath();
+  ctx.moveTo(0, 380);
+  ctx.lineTo(0, 260);
+  ctx.lineTo(140, 210);
+  ctx.lineTo(290, 255);
+  ctx.lineTo(480, 195);
+  ctx.lineTo(660, 245);
+  ctx.lineTo(830, 200);
+  ctx.lineTo(W, 240);
+  ctx.lineTo(W, 380);
+  ctx.closePath();
+  ctx.fill();
+
+  // Castle Curtain Wall
+  const wallGrad = ctx.createLinearGradient(0, 165, 0, 380);
+  wallGrad.addColorStop(0, '#362e2b');
+  wallGrad.addColorStop(1, '#211b19');
+  ctx.fillStyle = wallGrad;
+  ctx.fillRect(110, 175, 740, 205);
+
+  // Subtle stone masonry courses
+  ctx.strokeStyle = 'rgba(15, 11, 9, 0.45)';
+  ctx.lineWidth = 1;
+  for (let row = 185; row < 375; row += 18) {
+    ctx.beginPath();
+    ctx.moveTo(110, row);
+    ctx.lineTo(850, row);
+    ctx.stroke();
+    const offset = ((row / 18) % 2) * 18;
+    for (let col = 128 + offset; col < 840; col += 36) {
+      ctx.beginPath();
+      ctx.moveTo(col, row);
+      ctx.lineTo(col, row + 18);
+      ctx.stroke();
+    }
   }
-  // Towers
-  ctx.fillRect(80, 110, 70, 270);
-  ctx.fillRect(810, 110, 70, 270);
-  ctx.beginPath();
-  ctx.moveTo(75, 110);
-  ctx.lineTo(115, 65);
-  ctx.lineTo(155, 110);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(805, 110);
-  ctx.lineTo(845, 65);
-  ctx.lineTo(885, 110);
-  ctx.fill();
 
-  // Banners
-  drawBanner(260, 190, '#7a1c1c');
-  drawBanner(700, 190, '#1f4e78');
+  // Battlements (crenellations)
+  ctx.fillStyle = '#362e2b';
+  for (let x = 110; x < 850; x += 38) {
+    ctx.fillRect(x, 155, 22, 22);
+    ctx.fillStyle = '#473d38';
+    ctx.fillRect(x, 155, 22, 4);
+    ctx.fillStyle = '#362e2b';
+  }
 
-  // Courtyard ground
+  // Left & Right Keep Towers
+  drawTower(65, 95, 78, 285);
+  drawTower(817, 95, 78, 285);
+
+  // Central Gatehouse Arch
+  ctx.fillStyle = '#171210';
+  ctx.beginPath();
+  ctx.moveTo(435, 375);
+  ctx.lineTo(435, 275);
+  ctx.arc(480, 275, 45, Math.PI, 0);
+  ctx.lineTo(525, 375);
+  ctx.closePath();
+  ctx.fill();
+  // Portcullis bars
+  ctx.strokeStyle = '#3c3633';
+  ctx.lineWidth = 3;
+  for (let gx = 447; gx <= 513; gx += 13) {
+    ctx.beginPath();
+    ctx.moveTo(gx, 240);
+    ctx.lineTo(gx, 375);
+    ctx.stroke();
+  }
+  for (let gy = 265; gy <= 355; gy += 22) {
+    ctx.beginPath();
+    ctx.moveTo(437, gy);
+    ctx.lineTo(523, gy);
+    ctx.stroke();
+  }
+
+  // Fluttering Heraldic Banners
+  drawBanner(255, 195, '#7a1c1c', t);
+  drawBanner(705, 195, '#1f4e78', t + 1.2);
+
+  // Wall Torches with flickering glow
+  drawTorch(355, 245, t);
+  drawTorch(605, 245, t + 2.1);
+
+  // Wooden Arena Fence
+  ctx.fillStyle = '#3b2818';
+  ctx.fillRect(0, 352, W, 6);
+  for (let fx = 20; fx < W; fx += 72) {
+    ctx.fillStyle = '#4a3320';
+    ctx.fillRect(fx, 336, 10, 42);
+  }
+
+  // Courtyard Ground (layered mud & cobblestones)
   const ground = ctx.createLinearGradient(0, 375, 0, H);
-  ground.addColorStop(0, '#4f3b28');
-  ground.addColorStop(1, '#291e14');
+  ground.addColorStop(0, '#543f2b');
+  ground.addColorStop(0.35, '#3b2c1e');
+  ground.addColorStop(1, '#211810');
   ctx.fillStyle = ground;
   ctx.fillRect(0, 375, W, H - 375);
 
-  // Ground horizon line
-  ctx.strokeStyle = '#6e5338';
-  ctx.lineWidth = 3;
+  // Ground horizon & subtle ruts
+  ctx.strokeStyle = '#73573c';
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, 375);
   ctx.lineTo(W, 375);
   ctx.stroke();
+
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(W * 0.5, 445, 310, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
 }
 
-function drawBanner(x, y, color) {
+function drawTower(x, y, w, h) {
+  const grad = ctx.createLinearGradient(x, y, x + w, y);
+  grad.addColorStop(0, '#423834');
+  grad.addColorStop(0.6, '#2f2724');
+  grad.addColorStop(1, '#1e1917');
+  ctx.fillStyle = grad;
+  ctx.fillRect(x, y, w, h);
+
+  // Conical slate roof
+  ctx.fillStyle = '#242936';
+  ctx.beginPath();
+  ctx.moveTo(x - 8, y);
+  ctx.lineTo(x + w / 2, y - 52);
+  ctx.lineTo(x + w + 8, y);
+  ctx.closePath();
+  ctx.fill();
+
+  // Warm slit window
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(x + w / 2 - 4, y + 48, 8, 22);
+}
+
+function drawTorch(x, y, t) {
+  const flicker = Math.sin(t * 14) * 3 + Math.cos(t * 23) * 2;
+  const glow = ctx.createRadialGradient(x, y - 8, 4, x, y - 8, 52 + flicker);
+  glow.addColorStop(0, 'rgba(255, 190, 70, 0.55)');
+  glow.addColorStop(0.5, 'rgba(255, 110, 30, 0.18)');
+  glow.addColorStop(1, 'rgba(255, 110, 30, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(x, y - 8, 56, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bracket
+  ctx.fillStyle = '#1f1b18';
+  ctx.fillRect(x - 3, y, 6, 18);
+
+  // Flame
+  ctx.fillStyle = '#ff6b1a';
+  ctx.beginPath();
+  ctx.ellipse(x, y - 7, 6, 11 + flicker * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#ffd166';
+  ctx.beginPath();
+  ctx.ellipse(x, y - 5, 3, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawBanner(x, y, color, t) {
+  const sway = Math.sin(t * 2.2) * 3;
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(x - 16, y);
   ctx.lineTo(x + 16, y);
-  ctx.lineTo(x + 16, y + 68);
-  ctx.lineTo(x, y + 52);
-  ctx.lineTo(x - 16, y + 68);
+  ctx.lineTo(x + 16 + sway, y + 70);
+  ctx.lineTo(x + sway * 0.6, y + 54);
+  ctx.lineTo(x - 16 + sway, y + 70);
   ctx.closePath();
   ctx.fill();
+
   ctx.strokeStyle = '#d4af37';
   ctx.lineWidth = 2;
   ctx.stroke();
+
+  // Simple gold crest
+  ctx.fillStyle = '#d4af37';
+  ctx.beginPath();
+  ctx.arc(x + sway * 0.3, y + 26, 6, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function drawDuelist(d) {
   if (!d) return;
+  const t = performance.now() * 0.001;
+  const breath = d.dead ? 0 : Math.sin(t * 3 + (d.isPlayer ? 0 : 1.5)) * 1.5;
+
   ctx.save();
   ctx.translate(d.x, d.y);
 
@@ -505,101 +648,116 @@ function drawDuelist(d) {
   const dir = d.isPlayer ? 1 : -1;
   const flash = d.hitFlash > 0;
 
-  // Shadow
+  // Ground Shadow
   if (!d.dead) {
-    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath();
-    ctx.ellipse(0, 4, 28, 8, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 4, 30, 9, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // Cape
+  // Flowing Cape
   ctx.fillStyle = flash ? '#ffffff' : d.config.cape;
   ctx.beginPath();
-  ctx.moveTo(-10 * dir, -112);
-  ctx.lineTo(-34 * dir, -18);
-  ctx.lineTo(-6 * dir, -18);
+  ctx.moveTo(-10 * dir, -112 + breath);
+  ctx.quadraticCurveTo(-36 * dir, -65, -38 * dir, -14);
+  ctx.lineTo(-8 * dir, -16);
   ctx.closePath();
   ctx.fill();
 
-  // Legs
-  ctx.fillStyle = flash ? '#ffffff' : '#332c28';
-  ctx.fillRect(-14, -56, 11, 56);
-  ctx.fillRect(3, -56, 11, 56);
+  // Legs & Armored Greaves
+  ctx.fillStyle = flash ? '#ffffff' : '#2a2421';
+  ctx.fillRect(-15, -56, 12, 56);
+  ctx.fillRect(3, -56, 12, 56);
+  // Boots
+  ctx.fillStyle = flash ? '#ffffff' : '#1b1614';
+  ctx.fillRect(-16, -16, 14, 16);
+  ctx.fillRect(2, -16, 14, 16);
 
-  // Tunic / Torso
+  // Tunic / Chainmail Skirt
   ctx.fillStyle = flash ? '#ffffff' : d.config.tunic;
-  ctx.fillRect(-19, -114, 38, 60);
+  ctx.fillRect(-20, -114 + breath, 40, 62);
 
-  // Armor chestplate
-  ctx.fillStyle = flash ? '#ffffff' : d.config.armor;
-  ctx.fillRect(-16, -110, 32, 30);
+  // Leather Belt & Gold Buckle
+  ctx.fillStyle = flash ? '#ffffff' : '#3d2514';
+  ctx.fillRect(-20, -68 + breath, 40, 7);
+  ctx.fillStyle = '#d4af37';
+  ctx.fillRect(-4, -69 + breath, 8, 9);
+
+  // Metallic Breastplate with highlight
+  if (!flash) {
+    const armorGrad = ctx.createLinearGradient(-17, -112, 17, -75);
+    armorGrad.addColorStop(0, d.config.armor);
+    armorGrad.addColorStop(0.5, '#e2e8f0');
+    armorGrad.addColorStop(1, d.config.armor);
+    ctx.fillStyle = armorGrad;
+  } else {
+    ctx.fillStyle = '#ffffff';
+  }
+  ctx.fillRect(-17, -112 + breath, 34, 36);
+
+  // Shoulder Pauldron
+  ctx.beginPath();
+  ctx.arc(12 * dir, -106 + breath, 11, 0, Math.PI * 2);
+  ctx.fill();
 
   // Head
-  ctx.fillStyle = flash ? '#ffffff' : '#e0b899';
+  ctx.fillStyle = flash ? '#ffffff' : '#dfb393';
   ctx.beginPath();
-  ctx.arc(0, -132, 15, 0, Math.PI * 2);
+  ctx.arc(0, -132 + breath, 15, 0, Math.PI * 2);
   ctx.fill();
+
+  // Eye & Brow
+  if (!flash) {
+    ctx.fillStyle = '#1e1b18';
+    ctx.fillRect(5 * dir, -134 + breath, 4 * dir, 3);
+  }
 
   // Helmet / Crown
   ctx.fillStyle = flash ? '#ffffff' : d.config.armor;
   if (d.config.helmet === 'crown') {
     ctx.fillStyle = '#d4af37';
     ctx.beginPath();
-    ctx.moveTo(-14, -142);
-    ctx.lineTo(-14, -156);
-    ctx.lineTo(-6, -148);
-    ctx.lineTo(0, -158);
-    ctx.lineTo(6, -148);
-    ctx.lineTo(14, -156);
-    ctx.lineTo(14, -142);
+    ctx.moveTo(-14, -142 + breath);
+    ctx.lineTo(-14, -157 + breath);
+    ctx.lineTo(-6, -149 + breath);
+    ctx.lineTo(0, -159 + breath);
+    ctx.lineTo(6, -149 + breath);
+    ctx.lineTo(14, -157 + breath);
+    ctx.lineTo(14, -142 + breath);
     ctx.closePath();
     ctx.fill();
   } else if (d.config.helmet === 'horned') {
     ctx.beginPath();
-    ctx.arc(0, -135, 16, Math.PI, 0);
+    ctx.arc(0, -135 + breath, 16, Math.PI, 0);
     ctx.fill();
     ctx.fillStyle = '#dcdcdc';
     ctx.beginPath();
-    ctx.moveTo(-12, -144);
-    ctx.lineTo(-24, -162);
-    ctx.lineTo(-6, -148);
+    ctx.moveTo(-12, -144 + breath);
+    ctx.lineTo(-24, -163 + breath);
+    ctx.lineTo(-6, -148 + breath);
     ctx.fill();
     ctx.beginPath();
-    ctx.moveTo(12, -144);
-    ctx.lineTo(24, -162);
-    ctx.lineTo(6, -148);
+    ctx.moveTo(12, -144 + breath);
+    ctx.lineTo(24, -163 + breath);
+    ctx.lineTo(6, -148 + breath);
     ctx.fill();
   } else {
     ctx.beginPath();
-    ctx.arc(0, -135, 16, Math.PI, 0);
+    ctx.arc(0, -135 + breath, 16, Math.PI, 0);
     ctx.fill();
   }
 
   // Throwing Arm & Held Javelin
-  const armAngle = d.throwAnim > 0 ? -0.6 * dir : 0.25 * dir;
+  const armAngle = d.throwAnim > 0 ? -0.65 * dir : 0.22 * dir;
   ctx.save();
-  ctx.translate(8 * dir, -100);
+  ctx.translate(10 * dir, -100 + breath);
   ctx.rotate(armAngle);
   ctx.fillStyle = flash ? '#ffffff' : d.config.armor;
   ctx.fillRect(-4, -4, 24 * dir, 9);
 
   if (d.javelins > 0 && !d.dead) {
-    // Draw javelin in hand
-    ctx.strokeStyle = '#8c5a32';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(-22 * dir, 0);
-    ctx.lineTo(42 * dir, 0);
-    ctx.stroke();
-
-    ctx.fillStyle = '#d9e2ec';
-    ctx.beginPath();
-    ctx.moveTo(42 * dir, -5);
-    ctx.lineTo(56 * dir, 0);
-    ctx.lineTo(42 * dir, 5);
-    ctx.closePath();
-    ctx.fill();
+    drawJavelin(18 * dir, 0, dir === 1 ? 0 : Math.PI);
   }
   ctx.restore();
 
@@ -611,22 +769,38 @@ function drawJavelin(x, y, angle) {
   ctx.translate(x, y);
   ctx.rotate(angle);
 
-  // Shaft
-  ctx.strokeStyle = '#9c6638';
+  // Ash-wood shaft
+  ctx.strokeStyle = '#8c5a32';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(-34, 0);
+  ctx.moveTo(-36, 0);
   ctx.lineTo(14, 0);
   ctx.stroke();
 
-  // Steel tip
+  // Leather grip wrap
+  ctx.strokeStyle = '#3d2210';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(-14, 0);
+  ctx.lineTo(-4, 0);
+  ctx.stroke();
+
+  // Steel leaf spearhead
   ctx.fillStyle = '#e2e8f0';
   ctx.beginPath();
   ctx.moveTo(14, -5);
-  ctx.lineTo(28, 0);
+  ctx.lineTo(30, 0);
   ctx.lineTo(14, 5);
   ctx.closePath();
   ctx.fill();
+
+  // Spearhead center ridge highlight
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(14, 0);
+  ctx.lineTo(28, 0);
+  ctx.stroke();
 
   ctx.restore();
 }
