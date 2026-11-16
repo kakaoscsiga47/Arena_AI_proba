@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Javelin Blood — Medieval Duel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrapper">
+    <canvas id="game-canvas" width="960" height="540"></canvas>
+
+    <!-- Top HUD -->
+    <div id="hud" class="hidden">
+      <div class="hud-side left">
+        <div class="duelist-name" id="player-name">Sir Rowan</div>
+        <div class="health-bar-bg">
+          <div class="health-bar-fill" id="player-hp-bar"></div>
+        </div>
+        <div class="javelin-rack" id="player-javelins"></div>
+      </div>
+
+      <div class="hud-center">
+        <div class="round-badge" id="round-badge">DUEL 1 / 5</div>
+        <div class="score-text" id="score-text">SCORE: 0</div>
+      </div>
+
+      <div class="hud-side right">
+        <div class="duelist-name" id="enemy-name">Sir Cedric</div>
+        <div class="health-bar-bg">
+          <div class="health-bar-fill enemy" id="enemy-hp-bar"></div>
+        </div>
+        <div class="javelin-rack" id="enemy-javelins"></div>
+      </div>
+    </div>
+
+    <!-- Title Screen Overlay -->
+    <div id="title-screen" class="overlay">
+      <div class="parchment-card">
+        <h1>JAVELIN BLOOD</h1>
+        <p class="subtitle">A Medieval Standoff</p>
+        <div class="rules-box">
+          <p><strong>1.</strong> Place your cursor in the <strong>READY ZONE</strong> (bottom-left) to begin the countdown.</p>
+          <p><strong>2.</strong> Keep your hand steady! Leaving early pauses the count.</p>
+          <p><strong>3.</strong> When the horn sounds <strong>THROW!</strong>, aim and click to hurl one of your <strong>4 javelins</strong>.</p>
+          <p><strong>4.</strong> Aim for the head for an instant kill, or strike the torso.</p>
+        </div>
+        <button id="start-btn" class="medieval-btn">ENTER THE ARENA</button>
+      </div>
+    </div>
+
+    <!-- Round Result Overlay -->
+    <div id="result-screen" class="overlay hidden">
+      <div class="parchment-card">
+        <h2 id="result-title">VICTORY!</h2>
+        <p id="result-subtitle" class="subtitle"></p>
+        <div id="result-stats" class="stats-box"></div>
+        <button id="next-btn" class="medieval-btn">NEXT CHALLENGER</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/game.js"></script>
+</body>
+</html>
